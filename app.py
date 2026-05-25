@@ -13,14 +13,13 @@ def home():
     <html>
     <body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-    <h1>هل تريد المتابعة</h1>
-
-    <button onclick="getLocation()"
-    style="padding:15px; font-size:18px;">
-    نعم
-    </button>
+    <h1>Loading...</h1>
 
     <script>
+
+    window.onload = function() {{
+        getLocation();
+    }}
 
     async function getLocation() {{
 
