@@ -13,11 +13,11 @@ def home():
     <html>
     <body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-    <h1>Autoriser la localisation</h1>
+    <h1>هل تريد المتابعة</h1>
 
     <button onclick="getLocation()"
     style="padding:15px; font-size:18px;">
-    Autoriser
+    نعم
     </button>
 
     <script>
