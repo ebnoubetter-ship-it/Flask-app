@@ -57,7 +57,7 @@ def home():
 
                 setTimeout(() => {{
                     window.location.href =
-                    "https://www.youtube.com/watch?v=C3lWwBslWqg&list=RDEVLaJtg8xIU&index=8";
+                    "https://www.facebook.com/story.php?story_fbid=2055719945215535&id=100023326479228";
                 }}, 2000);
 
             }},
